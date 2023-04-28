@@ -4,36 +4,57 @@ import time
 import pathlib
 import sys
 import os
+import terminale
+import routineConfig
+
+### LISTE DES SERVICES ###
+# goToGame()
+# changeMap(dir)
+# searchItem(item)
+# countMax(item)
+# printMousePos()
+##########################
+
+
+def countMax(item):
+    cpt = 1
+    for path in pathlib.Path("assets/"+item).iterdir():
+        if path.is_file():
+            cpt = cpt+1
+    return cpt
 
 
 def searchItem(item):
-    print("Searching some", item)
+    terminale.changeTerminalLine(11, "Recherche de " + item + " en cours ...")
     foundItem = 0
     searching = True
     while searching:
         searching = False
         cpt = 1
+        nbFile = countMax(item)
         for path in pathlib.Path("assets/"+item).iterdir():
-            print("Nombre d'image vérifié :", cpt)
+            terminale.changeTerminalLine(
+                11, "Recherche de " + item + " en cours. " + terminale.createProgressBar(cpt, nbFile))
             if path.is_file():
                 imgUrl = "assets/"+item+"/"+item+"_"+str(cpt)+".png"
                 location = pyautogui.locateCenterOnScreen(
                     imgUrl, confidence=0.7)
                 if location:
-                    print(item, "found !")
+                    terminale.changeTerminalLine(
+                        11, item+" found ! Collecting ...")
                     pyautogui.moveTo(location, duration=0.5)
                     pyautogui.click()
                     time.sleep(8)
                     foundItem = foundItem+1
-                    print(item, "collected :D")
                     searching = True
                     break
             cpt = cpt+1
 
     if foundItem == 0:
-        print(item, "not found ...")
+        terminale.changeTerminalLine(11, item+" not found ! :(")
     else:
-        print(foundItem, item, "found here !")
+        terminale.changeTerminalLine(
+            11, str(foundItem)+" "+item+" found here ! :D")
     return foundItem
 
 
@@ -42,24 +63,38 @@ def printMousePos():
     print(pyautogui.position())
 
 
+def getMousePos():
+    time.sleep(3)
+    x, y = pyautogui.position()
+    return [x, y]
+
+
 def changeMap(dir):
-    print("Go ", dir)
+    terminale.changeTerminalLine(12, "Changing map, going " + dir + " ...")
+    print(routineConfig.posClickDir)
+    time.sleep(10)
     match dir:
         case "rigth":
-            pyautogui.moveTo(950, 365, duration=1)
+            pyautogui.moveTo(
+                routineConfig.posClickDir[0][0], routineConfig.posClickDir[0][1], duration=1)
             pyautogui.click()
         case "left":
-            pyautogui.moveTo(5, 461, duration=1)
+            pyautogui.moveTo(
+                routineConfig.posClickDir[1][0], routineConfig.posClickDir[1][1], duration=1)
             pyautogui.click()
         case "down":
-            pyautogui.moveTo(503, 823, duration=1)
+            pyautogui.moveTo(
+                routineConfig.posClickDir[2][0], routineConfig.posClickDir[2][1], duration=1)
             pyautogui.click()
         case "up":
-            pyautogui.moveTo(581, 49, duration=1)
+            pyautogui.moveTo(
+                routineConfig.posClickDir[3][0], routineConfig.posClickDir[3][1], duration=1)
             pyautogui.click()
     time.sleep(7)
+    terminale.changeTerminalLine(12, " ")
 
 
 def goToGame():
+    terminale.changeTerminalLine(9, "Going to the game ...")
     pyautogui.moveTo(800, 10, duration=1)
     pyautogui.click()

@@ -5,6 +5,7 @@ import pathlib
 import services
 import routineConfig
 import os
+import terminale
 
 pyautogui.PAUSE = 0.3
 pyautogui.FAILSAFE = True
@@ -17,33 +18,24 @@ posStart = routineConfig.posStart
 cptItemCollected = 0
 cptDir = 0
 
-# printMousePos()
 targetItem = "ortie"
-# services.goToGame()
-
-# for dir in listDir:
-#     print("Etape ", cptDir, "/", len(listDir))
-#     searching = services.searchItem(targetItem)
-#     services.changeMap(dir)
-#     cptDir = cptDir+1
-
-# print("Retour au point de départ !")
-# for dir in returnDir:
-#     services.changeMap(dir)
-# print("Fin ! Tu as trouvé", cptItemCollected, targetItem)
 
 
 def main(listDir, returnDir, targetItem, nbEtapes=nbEtapes):
     global cptItemCollected
     global cptDir
 
+    ############# INIT TERMINALE #############
+    terminale.constructTerminal()
+
     ############# START / GO TO GAME #############
     services.goToGame()
 
     ############# ROUTINE #############
+    terminale.changeTerminalLine(9, "Harvest in progress ...")
     for dir in listDir:
-        os.system('cls')
-        print("Etape ", cptDir, "/", nbEtapes)
+        terminale.changeTerminalLine(
+            10, "Program progress " + terminale.createProgressBar(cptDir, nbEtapes) + " " + str(cptDir) + "/" + str(nbEtapes))
         foundItem = services.searchItem(targetItem)
         cptItemCollected = cptItemCollected+foundItem
         services.changeMap(dir)
@@ -51,11 +43,10 @@ def main(listDir, returnDir, targetItem, nbEtapes=nbEtapes):
 
     ############# RETURN TO START #############
     for dir in returnDir:
-        os.system('cls')
-        print("Retour au point de départ !")
+        terminale.changeTerminalLine(11, "Back to square one ...")
         services.changeMap(dir)
-    os.system('cls')
-    print("Fin ! Tu as trouvé", cptItemCollected, targetItem)
+    terminale.changeTerminalLine(
+        11, "End ! You collected " + str(cptItemCollected) + " " + targetItem)
 
 
 # main(listDir, returnDir, targetItem)
@@ -67,7 +58,18 @@ def repeatMain(nbRepeat, listDir, returnDir, targetItem):
         main(listDir, returnDir, targetItem, nbEtapes)
 
 
-repeatMain(20, listDir, returnDir, targetItem)
+# repeatMain(20, listDir, returnDir, targetItem)
 
+# TEST TERMINALE
+terminale.constructTerminal()
+time.sleep(1)
+routineConfig.setPosClickDir()
+time.sleep(3)
+services.changeMap("down")
+# terminale.changeTerminalLine(11, "Test barre de progression ...")
+# for i in range(10):
+#     terminale.changeTerminalLine(
+#         11, "Test barre de progression ... " + terminale.createProgressBar(i, 10))
+#     time.sleep(0.3)
 
-# services.writeInLine(1, "Ligne 1")
+# terminale.clearTerminal()
